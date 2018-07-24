@@ -225,10 +225,10 @@ protected:
   
     if (WN_operator (_wn) == OPR_BLOCK) {
       _parent.push_back (std::make_pair (_wn, -1));
-      Set_wn (WN_first (_wn));
+      this->Set_wn (WN_first (_wn));
     } else {
       _parent.push_back (std::make_pair (_wn, 0));
-      Set_wn (WN_kid0 (_wn));
+      this->Set_wn (WN_kid0 (_wn));
     } 
   }					    
 
@@ -237,7 +237,7 @@ public:
   // pop stack, and update parent with parent_wn
   void Pop () {
     Is_True(! _parent.empty(),("Cannot pop empty stack"));
-    Set_wn (Get_parent_wn ());
+    this->Set_wn (Get_parent_wn ());
     _parent.pop_back ();
   }
   

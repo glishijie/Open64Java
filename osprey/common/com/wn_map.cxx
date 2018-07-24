@@ -12,14 +12,14 @@
 
   This program is distributed in the hope that it would be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
   Further, this software is distributed without any warranty that it is
-  free of the rightful claim of any third person regarding infringement 
-  or the like.  Any license provided herein, whether implied or 
-  otherwise, applies only to this software file.  Patent licenses, if 
-  any, provided herein do not apply to combinations of this program with 
-  other software, or any other product whatsoever.  
+  free of the rightful claim of any third person regarding infringement
+  or the like.  Any license provided herein, whether implied or
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with
+  other software, or any other product whatsoever.
 
   You should have received a copy of the GNU General Public License along
   with this program; if not, write the Free Software Foundation, Inc., 59
@@ -35,7 +35,6 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
-
 
 /* ====================================================================
  * ====================================================================
@@ -76,8 +75,8 @@
 ***     although this is transparent to the user.  When the user creates
 ***	a mapping, no memory is allocated.  We instead use a lazy model that
 ***	allocates space when the user first sets the value for a node.
-***     Thus, while the same mapping can be used by opcodes in different 
-***	categories, space is only reserved for those categores that have 
+***     Thus, while the same mapping can be used by opcodes in different
+***	categories, space is only reserved for those categores that have
 ***	opcodes which are set.  As an example, the user may create a
 ***	data dependence mapping.  If he only sets the mappings for loads
 ***	and stores, memory will only be allocated for all the load/store
@@ -105,22 +104,14 @@ WN_MAP_TAB *Current_Map_Tab = NULL;
 
 #define INIT_MAP_SIZE 20
 
-static WN_MAP_ID WN_MAP_get_map_id(
-    WN_MAP_TAB *maptab,
-    OPERATOR_MAPCAT category,
-    WN *wn);
+static WN_MAP_ID WN_MAP_get_map_id(WN_MAP_TAB *maptab, OPERATOR_MAPCAT category,
+                                   WN *wn);
 
-static void WN_MAP_realloc_array(
-    WN_MAP_TAB *maptab,
-    OPERATOR_MAPCAT category,
-    WN_MAP wn_map,
-    WN_MAP_ID id,
-    INT32 elemsz);
+static void WN_MAP_realloc_array(WN_MAP_TAB *maptab, OPERATOR_MAPCAT category,
+                                 WN_MAP wn_map, WN_MAP_ID id, INT32 elemsz);
 
-
-#define WN_MAP_check_kind(maptab, wn_map, kind) \
-    ((maptab)->_kind[(wn_map)] == (kind))
-
+#define WN_MAP_check_kind(maptab, wn_map, kind)                                \
+  ((maptab)->_kind[(wn_map)] == (kind))
 
 /*
  *  Create a new map table and initialize it.  The slots for the
@@ -128,9 +119,7 @@ static void WN_MAP_realloc_array(
  *  slots must be cleared out.
  */
 
-WN_MAP_TAB *
-WN_MAP_TAB_Create(MEM_POOL *pool)
-{
+WN_MAP_TAB *WN_MAP_TAB_Create(MEM_POOL *pool) {
   INT32 i, category;
   WN_MAP_TAB *maptab = TYPE_MEM_POOL_ALLOC(WN_MAP_TAB, pool);
 
@@ -140,7 +129,7 @@ WN_MAP_TAB_Create(MEM_POOL *pool)
   for (i = 0; i < WN_MAP_RESERVED; i++) {
     maptab->_is_used[i] = TRUE;
     /* zero the _map_size counter */
-    for (category = 0; category < WN_MAP_CATEGORIES; category++) { 
+    for (category = 0; category < WN_MAP_CATEGORIES; category++) {
       maptab->_map_size[category][i] = 0;
       maptab->_mapping[category][i] = NULL;
     }
@@ -155,12 +144,12 @@ WN_MAP_TAB_Create(MEM_POOL *pool)
   maptab->_kind[WN_MAP_ALIAS_CLASS] = WN_MAP_KIND_INT32;
 
   /*  clear the slots that are not reserved */
-  for (i = WN_MAP_RESERVED; i < WN_MAP_MAX; i++) { 
+  for (i = WN_MAP_RESERVED; i < WN_MAP_MAX; i++) {
     maptab->_is_used[i] = FALSE;
   }
   /* clear all category info, even for reserved ones */
   /* Because we don't init mem to 0, have to set values here. */
-  for (i = 0; i < WN_MAP_CATEGORIES; i++) { 
+  for (i = 0; i < WN_MAP_CATEGORIES; i++) {
     maptab->_last_map_id[i] = -1;
     maptab->_free_list_count[i] = 0;
     maptab->_free_list_size[i] = 0;
@@ -171,25 +160,22 @@ WN_MAP_TAB_Create(MEM_POOL *pool)
   return maptab;
 }
 
-
 /*
  *  Deallocate a map table.
  */
 
-void
-WN_MAP_TAB_Delete(WN_MAP_TAB *maptab)
-{
+void WN_MAP_TAB_Delete(WN_MAP_TAB *maptab) {
   INT32 i, category;
 
   /* delete the maps that are in use */
-  for (i = 0; i < WN_MAP_MAX; i++) { 
+  for (i = 0; i < WN_MAP_MAX; i++) {
     if (maptab->_is_used[i]) {
       IPA_WN_MAP_Delete(maptab, i);
     }
   }
 
   /* deallocate the free list storage */
-  for (category = 0; category < WN_MAP_CATEGORIES; category++) { 
+  for (category = 0; category < WN_MAP_CATEGORIES; category++) {
     if (maptab->_free_list_size[category] > 0) {
       MEM_POOL_FREE(maptab->_free_list_pool, maptab->_free_list[category]);
     }
@@ -199,30 +185,29 @@ WN_MAP_TAB_Delete(WN_MAP_TAB *maptab)
   MEM_POOL_FREE(maptab->_free_list_pool, maptab);
 }
 
-
 /*
  *  Search a map table for an open slot and initialize that slots to
  *  contain a new mapping.  If no slots are available, return -1.
  */
 
 WN_MAP
-WN_MAP_Do_Create(WN_MAP_TAB *maptab, MEM_POOL *pool, WN_MAP_KIND kind)
-{
+WN_MAP_Do_Create(WN_MAP_TAB *maptab, MEM_POOL *pool, WN_MAP_KIND kind) {
   WN_MAP_ID wn_map;
   INT32 category;
 
   /* find an unused map, return -1 on error */
   for (wn_map = WN_MAP_RESERVED; wn_map < WN_MAP_MAX; wn_map++) {
-    if (!maptab->_is_used[wn_map]) break;
+    if (!maptab->_is_used[wn_map])
+      break;
   }
-  FmtAssert(wn_map != WN_MAP_MAX,("WN_MAP_Do_Create, ran out of maps"));
+  FmtAssert(wn_map != WN_MAP_MAX, ("WN_MAP_Do_Create, ran out of maps"));
 
   maptab->_is_used[wn_map] = TRUE;
 
   /* zero the _map_size counter */
-  for (category = 0; category < WN_MAP_CATEGORIES; category++) { 
+  for (category = 0; category < WN_MAP_CATEGORIES; category++) {
     maptab->_map_size[category][wn_map] = 0;
-      maptab->_mapping[category][wn_map] = NULL;
+    maptab->_mapping[category][wn_map] = NULL;
   }
 
   maptab->_pool[wn_map] = pool;
@@ -230,28 +215,25 @@ WN_MAP_Do_Create(WN_MAP_TAB *maptab, MEM_POOL *pool, WN_MAP_KIND kind)
   return wn_map;
 }
 
-
 /*
  *  Delete a map from a map table so that its slot can be reused.  The
  *  space used by the map value array is only deallocated if the MEM_POOL
  *  is the Malloc_Mem_Pool.
  */
 
-void
-IPA_WN_MAP_Delete(WN_MAP_TAB *maptab, WN_MAP wn_map)
-{
+void IPA_WN_MAP_Delete(WN_MAP_TAB *maptab, WN_MAP wn_map) {
   INT32 category;
 
   if (maptab == 0)
-      return;
-  
+    return;
+
   Is_True(0 <= wn_map && wn_map < WN_MAP_MAX,
           ("IPA_WN_MAP_Delete: invalid map index %d", wn_map));
 
   for (category = 0; category < WN_MAP_CATEGORIES; category++) {
     if (maptab->_map_size[category][wn_map] != 0) {
       if (maptab->_pool[wn_map] == Malloc_Mem_Pool) {
-	MEM_POOL_FREE(Malloc_Mem_Pool, maptab->_mapping[category][wn_map]);
+        MEM_POOL_FREE(Malloc_Mem_Pool, maptab->_mapping[category][wn_map]);
       }
       maptab->_map_size[category][wn_map] = 0;
       maptab->_mapping[category][wn_map] = NULL;
@@ -261,15 +243,14 @@ IPA_WN_MAP_Delete(WN_MAP_TAB *maptab, WN_MAP wn_map)
 }
 
 WN_MAP_ID
-IPA_WN_MAP_Status(WN_MAP_TAB *maptab)
-{
+IPA_WN_MAP_Status(WN_MAP_TAB *maptab) {
   WN_MAP_ID wn_map;
 
   /* find an first unused map, return -1 on error */
   for (wn_map = WN_MAP_RESERVED; wn_map < WN_MAP_MAX; wn_map++)
     if (!maptab->_is_used[wn_map])
       return wn_map;
-  Is_True(0,("WN_MAP_Status, all maps used"));
+  Is_True(0, ("WN_MAP_Status, all maps used"));
   return (WN_MAP_ID)(-1);
 }
 
@@ -283,8 +264,7 @@ IPA_WN_MAP_Status(WN_MAP_TAB *maptab)
  */
 
 WN_MAP_ID
-WN_MAP_get_map_id (WN_MAP_TAB *maptab, OPERATOR_MAPCAT category, WN *wn)
-{
+WN_MAP_get_map_id(WN_MAP_TAB *maptab, OPERATOR_MAPCAT category, WN *wn) {
   /* Check if this node has been given an id */
   if (WN_map_id(wn) != -1) {
     return WN_map_id(wn);
@@ -294,24 +274,24 @@ WN_MAP_get_map_id (WN_MAP_TAB *maptab, OPERATOR_MAPCAT category, WN *wn)
   if (maptab->_free_list_count[category] > 0) {
     INT32 i;
     WN_MAP_ID id =
-      maptab->_free_list[category][--maptab->_free_list_count[category]];
+        maptab->_free_list[category][--maptab->_free_list_count[category]];
     WN_set_map_id(wn, id);
     /* grabbed it from the free list, now must zero old mappings */
     for (i = 0; i < WN_MAP_MAX; i++) {
       if (maptab->_is_used[i] && (id < maptab->_map_size[category][i])) {
-	switch (maptab->_kind[i]) {
-	case WN_MAP_KIND_VOIDP:
-	  maptab->_mapping[category][i][id] = NULL;
-	  break;
-	case WN_MAP_KIND_INT32:
-	  ((INT32*)maptab->_mapping[category][i])[id] = 0;
-	  break;
-	case WN_MAP_KIND_INT64:
-	  ((INT64*)maptab->_mapping[category][i])[id] = 0;
-	  break;
-	default:
-	  Is_True(FALSE, ("WN_MAP_do_set: unknown map kind"));
-	}
+        switch (maptab->_kind[i]) {
+        case WN_MAP_KIND_VOIDP:
+          maptab->_mapping[category][i][id] = NULL;
+          break;
+        case WN_MAP_KIND_INT32:
+          ((INT32 *)maptab->_mapping[category][i])[id] = 0;
+          break;
+        case WN_MAP_KIND_INT64:
+          ((INT64 *)maptab->_mapping[category][i])[id] = 0;
+          break;
+        default:
+          Is_True(FALSE, ("WN_MAP_do_set: unknown map kind"));
+        }
       }
     }
     return id;
@@ -322,11 +302,8 @@ WN_MAP_get_map_id (WN_MAP_TAB *maptab, OPERATOR_MAPCAT category, WN *wn)
   return WN_map_id(wn);
 }
 
-
-void
-WN_MAP_realloc_array (WN_MAP_TAB *maptab, OPERATOR_MAPCAT category,
-		      WN_MAP wn_map, WN_MAP_ID id, INT32 elemsz)
-{
+void WN_MAP_realloc_array(WN_MAP_TAB *maptab, OPERATOR_MAPCAT category,
+                          WN_MAP wn_map, WN_MAP_ID id, INT32 elemsz) {
   INT32 old_size = maptab->_map_size[category][wn_map];
   INT32 new_size;
   if (old_size == 0) {
@@ -339,131 +316,119 @@ WN_MAP_realloc_array (WN_MAP_TAB *maptab, OPERATOR_MAPCAT category,
   }
 
   maptab->_map_size[category][wn_map] = new_size;
-  maptab->_mapping[category][wn_map] = (void **)
-      MEM_POOL_Realloc(maptab->_pool[wn_map],
-		     maptab->_mapping[category][wn_map],
-		     old_size * elemsz,
-		     new_size * elemsz);
+  maptab->_mapping[category][wn_map] = (void **)MEM_POOL_Realloc(
+      maptab->_pool[wn_map], maptab->_mapping[category][wn_map],
+      old_size * elemsz, new_size * elemsz);
 
   /* make sure the new storage is zeroed */
   if (!(maptab->_pool[wn_map]->bz)) {
-      INTPS address = ((INTPS) maptab->_mapping[category][wn_map]) + (old_size * elemsz);
-      bzero((void *) address, (new_size - old_size) * elemsz);
+    INTPS address =
+        ((INTPS)maptab->_mapping[category][wn_map]) + (old_size * elemsz);
+    bzero((void *)address, (new_size - old_size) * elemsz);
   }
 }
 
-
-void
-IPA_WN_MAP_Set(WN_MAP_TAB *maptab, WN_MAP wn_map, WN *wn, void *thing)
-{
+void IPA_WN_MAP_Set(WN_MAP_TAB *maptab, WN_MAP wn_map, WN *wn, void *thing) {
   OPERATOR_MAPCAT category;
   WN_MAP_ID id;
 
-  Is_True(wn != NULL,("WN_MAP_Set: wn is NULL"));
+  Is_True(wn != NULL, ("WN_MAP_Set: wn is NULL"));
   category = OPCODE_mapcat(WN_opcode(wn));
   Is_True(maptab->_is_used[wn_map], ("WN_MAP_Set: wn_map is not valid"));
   Is_True(WN_MAP_check_kind(maptab, wn_map, WN_MAP_KIND_VOIDP),
-	  ("WN_MAP_Set: not a VOID* map"));
+          ("WN_MAP_Set: not a VOID* map"));
 
   id = WN_MAP_get_map_id(maptab, category, wn);
   if (id >= maptab->_map_size[category][wn_map]) {
-    WN_MAP_realloc_array(maptab, category, wn_map, id, sizeof(void*));
+    WN_MAP_realloc_array(maptab, category, wn_map, id, sizeof(void *));
   }
   maptab->_mapping[category][wn_map][id] = thing;
 }
 
-
-void
-IPA_WN_MAP32_Set(WN_MAP_TAB *maptab, WN_MAP wn_map, WN *wn, INT32 thing)
-{
+void IPA_WN_MAP32_Set(WN_MAP_TAB *maptab, WN_MAP wn_map, WN *wn, INT32 thing) {
   OPERATOR_MAPCAT category = OPCODE_mapcat(WN_opcode(wn));
   WN_MAP_ID id;
 
   Is_True(maptab->_is_used[wn_map], ("WN_MAP32_Set: wn_map is not valid"));
   Is_True(WN_MAP_check_kind(maptab, wn_map, WN_MAP_KIND_INT32),
-	  ("WN_MAP32_Set: not an INT32 map"));
+          ("WN_MAP32_Set: not an INT32 map"));
 
   id = WN_MAP_get_map_id(maptab, category, wn);
   if (id >= maptab->_map_size[category][wn_map]) {
     WN_MAP_realloc_array(maptab, category, wn_map, id, sizeof(INT32));
   }
-  ((INT32*)maptab->_mapping[category][wn_map])[id] = thing;
+  ((INT32 *)maptab->_mapping[category][wn_map])[id] = thing;
 }
 
-
-void
-IPA_WN_MAP64_Set(WN_MAP_TAB *maptab, WN_MAP wn_map, WN *wn, INT64 thing)
-{
+void IPA_WN_MAP64_Set(WN_MAP_TAB *maptab, WN_MAP wn_map, WN *wn, INT64 thing) {
   OPERATOR_MAPCAT category = OPCODE_mapcat(WN_opcode(wn));
   WN_MAP_ID id;
 
   Is_True(maptab->_is_used[wn_map], ("WN_MAP64_Set: wn_map is not valid"));
   Is_True(WN_MAP_check_kind(maptab, wn_map, WN_MAP_KIND_INT64),
-	  ("WN_MAP64_Set: not an INT64 map"));
+          ("WN_MAP64_Set: not an INT64 map"));
 
   id = WN_MAP_get_map_id(maptab, category, wn);
   if (id >= maptab->_map_size[category][wn_map]) {
     WN_MAP_realloc_array(maptab, category, wn_map, id, sizeof(INT64));
   }
-  ((INT64*)maptab->_mapping[category][wn_map])[id] = thing;
+  ((INT64 *)maptab->_mapping[category][wn_map])[id] = thing;
 }
-
 
 /*
  *  The following functions retrieve the value for a WN in a particular
  *  map.  If no value has been assigned for that WN, they return 0.
  */
 
-void *
-IPA_WN_MAP_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn)
-{
+void *IPA_WN_MAP_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn) {
   WN_MAP_ID id = WN_map_id(wn);
   OPERATOR_MAPCAT category;
 
-  if (id == -1) return NULL;
+  if (id == -1)
+    return NULL;
   Is_True(maptab->_is_used[wn_map], ("WN_MAP_Get: wn_map is not valid"));
   Is_True(WN_MAP_check_kind(maptab, wn_map, WN_MAP_KIND_VOIDP),
-	  ("WN_MAP_Get: not a VOID* map"));
+          ("WN_MAP_Get: not a VOID* map"));
 
   category = OPCODE_mapcat(WN_opcode(wn));
-  if (id >= maptab->_map_size[category][wn_map]) return NULL;
+  if (id >= maptab->_map_size[category][wn_map])
+    return NULL;
   return maptab->_mapping[category][wn_map][id];
 }
 
-
 INT32
-IPA_WN_MAP32_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn)
-{
+IPA_WN_MAP32_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn) {
   WN_MAP_ID id = WN_map_id(wn);
   OPERATOR_MAPCAT category;
 
   Is_True(maptab->_is_used[wn_map], ("WN_MAP32_Get: wn_map is not valid"));
   Is_True(WN_MAP_check_kind(maptab, wn_map, WN_MAP_KIND_INT32),
-	  ("WN_MAP32_Get: not an INT32 map"));
+          ("WN_MAP32_Get: not an INT32 map"));
 
-  if (id == -1) return 0;
+  if (id == -1)
+    return 0;
   category = OPCODE_mapcat(WN_opcode(wn));
-  if (id >= maptab->_map_size[category][wn_map]) return 0;
-  return ((INT32*)maptab->_mapping[category][wn_map])[id];
+  if (id >= maptab->_map_size[category][wn_map])
+    return 0;
+  return ((INT32 *)maptab->_mapping[category][wn_map])[id];
 }
 
-
 INT64
-IPA_WN_MAP64_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn)
-{
+IPA_WN_MAP64_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn) {
   WN_MAP_ID id = WN_map_id(wn);
   OPERATOR_MAPCAT category;
 
   Is_True(maptab->_is_used[wn_map], ("WN_MAP64_Get: wn_map is not valid"));
   Is_True(WN_MAP_check_kind(maptab, wn_map, WN_MAP_KIND_INT64),
-	  ("WN_MAP64_Get: not an INT64 map"));
+          ("WN_MAP64_Get: not an INT64 map"));
 
-  if (id == -1) return 0;
+  if (id == -1)
+    return 0;
   category = OPCODE_mapcat(WN_opcode(wn));
-  if (id >= maptab->_map_size[category][wn_map]) return 0;
-  return ((INT64*)maptab->_mapping[category][wn_map])[id];
+  if (id >= maptab->_map_size[category][wn_map])
+    return 0;
+  return ((INT64 *)maptab->_mapping[category][wn_map])[id];
 }
-
 
 /*
  *  Add the map_id for a WN to the free list in a map table.  This is
@@ -471,14 +436,13 @@ IPA_WN_MAP64_Get(WN_MAP_TAB *maptab, WN_MAP wn_map, const WN *wn)
  *  if it runs out of space, we just realloc it.
  */
 
-void
-WN_MAP_Add_Free_List(WN_MAP_TAB *maptab, WN *wn)
-{
+void WN_MAP_Add_Free_List(WN_MAP_TAB *maptab, WN *wn) {
   OPERATOR_MAPCAT category = OPCODE_mapcat(WN_opcode(wn));
   INT32 count, size;
-  
-  if (WN_map_id(wn) == -1) return; /* no map_id to free */
-  
+
+  if (WN_map_id(wn) == -1)
+    return; /* no map_id to free */
+
   count = maptab->_free_list_count[category];
   size = maptab->_free_list_size[category];
 
@@ -487,31 +451,26 @@ WN_MAP_Add_Free_List(WN_MAP_TAB *maptab, WN *wn)
     if (size == 0) {
       INT32 elements = 50;
       maptab->_free_list[category] =
-        TYPE_MEM_POOL_ALLOC_N(WN_MAP_ID, maptab->_free_list_pool, elements);
+          TYPE_MEM_POOL_ALLOC_N(WN_MAP_ID, maptab->_free_list_pool, elements);
       maptab->_free_list_size[category] = elements;
     } else {
       INT32 elements = MAX(2 * size, size + 50);
       maptab->_free_list[category] =
-        TYPE_MEM_POOL_REALLOC_N(WN_MAP_ID, maptab->_free_list_pool,
-			      maptab->_free_list[category], size, elements);
+          TYPE_MEM_POOL_REALLOC_N(WN_MAP_ID, maptab->_free_list_pool,
+                                  maptab->_free_list[category], size, elements);
       maptab->_free_list_size[category] = elements;
     }
   }
-  
+
   maptab->_free_list[category][count] = WN_map_id(wn);
   maptab->_free_list_count[category] = count + 1;
 }
-
 
 /*
  *  Set the WN map_id field if it doesn't already have an ID.
  */
 
-void
-WN_MAP_Set_ID (WN_MAP_TAB *maptab, WN *wn)
-{
+void WN_MAP_Set_ID(WN_MAP_TAB *maptab, WN *wn) {
   OPERATOR_MAPCAT category = OPCODE_mapcat(WN_opcode(wn));
-  (void)WN_MAP_get_map_id (maptab, category, wn);
+  (void)WN_MAP_get_map_id(maptab, category, wn);
 }
-
-

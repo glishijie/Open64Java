@@ -12,14 +12,14 @@
 
   This program is distributed in the hope that it would be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
   Further, this software is distributed without any warranty that it is
-  free of the rightful claim of any third person regarding infringement 
-  or the like.  Any license provided herein, whether implied or 
-  otherwise, applies only to this software file.  Patent licenses, if 
-  any, provided herein do not apply to combinations of this program with 
-  other software, or any other product whatsoever.  
+  free of the rightful claim of any third person regarding infringement
+  or the like.  Any license provided herein, whether implied or
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with
+  other software, or any other product whatsoever.
 
   You should have received a copy of the GNU General Public License along
   with this program; if not, write the Free Software Foundation, Inc., 59
@@ -35,7 +35,6 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
-
 
 /* ====================================================================
  * ====================================================================
@@ -70,13 +69,11 @@
  *
  * ====================================================================
  */
-void Config_Target_From_ELF (Elf64_Word e_flags, BOOL *is_64bit, INT *isa)
-{
+void Config_Target_From_ELF(Elf64_Word e_flags, BOOL *is_64bit, INT *isa) {
   *is_64bit = (e_flags & EF_IRIX_ABI64);
 
   *isa = 1;
 }
-
 
 /* ====================================================================
  *
@@ -86,20 +83,18 @@ void Config_Target_From_ELF (Elf64_Word e_flags, BOOL *is_64bit, INT *isa)
  *
  * ====================================================================
  */
-Elf32_Word Config_ELF_From_Target(BOOL is_64bit, BOOL old_abi, INT isa)
-{
+Elf32_Word Config_ELF_From_Target(BOOL is_64bit, BOOL old_abi, INT isa) {
   Elf32_Word e_flags = 0;
 
-  if (is_64bit) e_flags |= EF_IRIX_ABI64;
+  if (is_64bit)
+    e_flags |= EF_IRIX_ABI64;
 
   return e_flags;
 }
 
-Elf32_Half Get_Elf_Target_Machine (void)
-{
-#define EM_X86_64       62              /* AMD x86-64 architecture */
+Elf32_Half Get_Elf_Target_Machine(void) {
+#define EM_X86_64 62 /* AMD x86-64 architecture */
 // TODO        return EM_X86_64; // from /usr/include/elf.h
 #define EM_MIPS_RS3_LE 10 /* MIPS R3000 little-endian */
-	return EM_MIPS_RS3_LE; // using MIPS .B file for now
+  return EM_MIPS_RS3_LE;  // using MIPS .B file for now
 }
-
