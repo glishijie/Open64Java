@@ -38,23 +38,26 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    For float regs, the stack top is sometimes referred to as "%st(0)"
    instead of just "%st".  PRINT_OPERAND handles this with the "y" code.  */
 
-#define HI_REGISTER_NAMES						\
-{"ax","dx","cx","bx","si","di","bp","sp",				\
- "st","st(1)","st(2)","st(3)","st(4)","st(5)","st(6)","st(7)",		\
- "argp", "flags", "fpsr", "dirflag", "frame",				\
- "xmm0","xmm1","xmm2","xmm3","xmm4","xmm5","xmm6","xmm7",		\
- "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"	,		\
- "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15",			\
- "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"}
+#define HI_REGISTER_NAMES                                                      \
+  {                                                                            \
+    "ax", "dx", "cx", "bx", "si", "di", "bp", "sp", "st", "st(1)", "st(2)",    \
+        "st(3)", "st(4)", "st(5)", "st(6)", "st(7)", "argp", "flags", "fpsr",  \
+        "dirflag", "frame", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5",    \
+        "xmm6", "xmm7", "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6",       \
+        "mm7", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", "xmm8",   \
+        "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"           \
+  }
 
 #define REGISTER_NAMES HI_REGISTER_NAMES
 
 /* Table of additional register names to use in user input.  */
 
-#define ADDITIONAL_REGISTER_NAMES \
-{ { "eax", 0 }, { "edx", 1 }, { "ecx", 2 }, { "ebx", 3 },	\
-  { "esi", 4 }, { "edi", 5 }, { "ebp", 6 }, { "esp", 7 },	\
-  { "rax", 0 }, { "rdx", 1 }, { "rcx", 2 }, { "rbx", 3 },	\
-  { "rsi", 4 }, { "rdi", 5 }, { "rbp", 6 }, { "rsp", 7 },	\
-  { "al", 0 }, { "dl", 1 }, { "cl", 2 }, { "bl", 3 },		\
-  { "ah", 0 }, { "dh", 1 }, { "ch", 2 }, { "bh", 3 } }
+#define ADDITIONAL_REGISTER_NAMES                                              \
+  {                                                                            \
+    {"eax", 0}, {"edx", 1}, {"ecx", 2}, {"ebx", 3}, {"esi", 4}, {"edi", 5},    \
+        {"ebp", 6}, {"esp", 7}, {"rax", 0}, {"rdx", 1}, {"rcx", 2},            \
+        {"rbx", 3}, {"rsi", 4}, {"rdi", 5}, {"rbp", 6}, {"rsp", 7}, {"al", 0}, \
+        {"dl", 1}, {"cl", 2}, {"bl", 3}, {"ah", 0}, {"dh", 1}, {"ch", 2}, {    \
+      "bh", 3                                                                  \
+    }                                                                          \
+  }

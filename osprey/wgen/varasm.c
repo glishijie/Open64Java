@@ -35,9 +35,7 @@ static const char *reg_names[] = REGISTER_NAMES;
 
 /* Given NAME, a putative register name, discard any customary prefixes.  */
 
-static const char *
-strip_reg_name (const char *name)
-{
+static const char *strip_reg_name(const char *name) {
   if (name[0] == '%' || name[0] == '#')
     name++;
   return name;
@@ -51,53 +49,50 @@ strip_reg_name (const char *name)
    Accept an exact spelling or a decimal number.
    Prefixes such as % are optional.  */
 
-int
-gs_decode_reg_name (const char *asmspec)
-{
-  if (asmspec != 0)
-    {
-      int i;
+int gs_decode_reg_name(const char *asmspec) {
+  if (asmspec != 0) {
+    int i;
 
-      /* Get rid of confusing prefixes.  */
-      asmspec = strip_reg_name (asmspec);
+    /* Get rid of confusing prefixes.  */
+    asmspec = strip_reg_name(asmspec);
 
-      /* Allow a decimal number as a "register name".  */
-      for (i = strlen (asmspec) - 1; i >= 0; i--)
-	if (! isdigit (asmspec[i]))
-	  break;
-      if (asmspec[0] != 0 && i < 0)
-	{
-	  i = atoi (asmspec);
-	  if (i < FIRST_PSEUDO_REGISTER && i >= 0)
-	    return i;
-	  else
-	    return -2;
-	}
+    /* Allow a decimal number as a "register name".  */
+    for (i = strlen(asmspec) - 1; i >= 0; i--)
+      if (!isdigit(asmspec[i]))
+        break;
+    if (asmspec[0] != 0 && i < 0) {
+      i = atoi(asmspec);
+      if (i < FIRST_PSEUDO_REGISTER && i >= 0)
+        return i;
+      else
+        return -2;
+    }
 
-      for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)
-	if (reg_names[i][0]
-	    && ! strcmp (asmspec, strip_reg_name (reg_names[i])))
-	  return i;
+    for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)
+      if (reg_names[i][0] && !strcmp(asmspec, strip_reg_name(reg_names[i])))
+        return i;
 
 #ifdef ADDITIONAL_REGISTER_NAMES
-      {
-	static const struct { const char *const name; const int number; } table[]
-	  = ADDITIONAL_REGISTER_NAMES;
+    {
+      static const struct {
+        const char *const name;
+        const int number;
+      } table[] = ADDITIONAL_REGISTER_NAMES;
 
-	for (i = 0; i < (int) ARRAY_SIZE (table); i++)
-	  if (! strcmp (asmspec, table[i].name))
-	    return table[i].number;
-      }
+      for (i = 0; i < (int)ARRAY_SIZE(table); i++)
+        if (!strcmp(asmspec, table[i].name))
+          return table[i].number;
+    }
 #endif /* ADDITIONAL_REGISTER_NAMES */
 
-      if (!strcmp (asmspec, "memory"))
-	return -4;
+    if (!strcmp(asmspec, "memory"))
+      return -4;
 
-      if (!strcmp (asmspec, "cc"))
-	return -3;
+    if (!strcmp(asmspec, "cc"))
+      return -3;
 
-      return -2;
-    }
+    return -2;
+  }
 
   return -1;
 }

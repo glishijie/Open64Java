@@ -2,7 +2,7 @@
  * Copyright (C) 2006, 2007. QLogic Corporation. All Rights Reserved.
  */
 
-/* 
+/*
  * Copyright 2003, 2004, 2005, 2006 PathScale, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -11,19 +11,19 @@
  *
  * This program is distributed in the hope that it would be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement 
- * or the like.  Any license provided herein, whether implied or 
- * otherwise, applies only to this software file.  Patent licenses, if 
- * any, provided herein do not apply to combinations of this program with 
- * other software, or any other product whatsoever.  
+ * free of the rightful claim of any third person regarding infringement
+ * or the like.  Any license provided herein, whether implied or
+ * otherwise, applies only to this software file.  Patent licenses, if
+ * any, provided herein do not apply to combinations of this program with
+ * other software, or any other product whatsoever.
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write the Free Software Foundation, Inc., 59
  * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- * File modified June 20, 2003 by PathScale, Inc. to update Open64 C/C++ 
+ * File modified June 20, 2003 by PathScale, Inc. to update Open64 C/C++
  * front-ends to GNU 3.2.2 release.
  */
 
@@ -38,76 +38,76 @@ extern void Init_Deferred_Decl_Init_Stack(void);
 
 /* expand namespace scope declaration into symtab and whirl */
 extern BOOL expanding_function_definition;
-extern "C" void WGEN_Expand_Decl (gs_t decl, BOOL can_skip);
+extern "C" void WGEN_Expand_Decl(gs_t decl, BOOL can_skip);
 
 /* called after function body processed, to write out the PU */
-extern void WGEN_Finish_Function (void);
+extern void WGEN_Finish_Function(void);
 
 /* called for each initialized variable */
-extern void WGEN_Initialize_Decl (gs_t decl);
+extern void WGEN_Initialize_Decl(gs_t decl);
 
 #ifdef KEY
 // For initialization of any variables  except globals.
 // Called for each initialized variable.
-extern void WGEN_Initialize_Nested_Decl (gs_t decl);
+extern void WGEN_Initialize_Nested_Decl(gs_t decl);
 
 // Add a VAR_DECL typeinfo to be emitted
-extern void gxx_emits_typeinfos (gs_t);
+extern void gxx_emits_typeinfos(gs_t);
 
 // Add VAR_DECLs and TYPE_DECLs that are to be expanded last.
-extern void defer_decl (gs_t);
+extern void defer_decl(gs_t);
 
 // Add struct fields whose type we want to expand last.
-extern void defer_field (gs_t, FLD_HANDLE);
+extern void defer_field(gs_t, FLD_HANDLE);
 
 // Add type whose DST info we want to create last.
-extern void defer_DST_type (gs_t, TY_IDX, TY_IDX);
+extern void defer_DST_type(gs_t, TY_IDX, TY_IDX);
 
 // Add DSTs for the defered types.
 extern void add_deferred_DST_types();
 
 // Interface description in .cxx file
-extern void template_substituted (gs_t, gs_t, gs_t);
-extern gs_t get_substituted (gs_t, gs_t);
-extern void push_mp_local_vars (gs_t);
-extern gs_t pop_mp_local_vars (void);
+extern void template_substituted(gs_t, gs_t, gs_t);
+extern gs_t get_substituted(gs_t, gs_t);
+extern void push_mp_local_vars(gs_t);
+extern gs_t pop_mp_local_vars(void);
 
 // Initialize a vector.
-extern void Traverse_Aggregate_Vector_Const (ST *, gs_t, BOOL, UINT);
+extern void Traverse_Aggregate_Vector_Const(ST *, gs_t, BOOL, UINT);
 // Handle initialization through a modify_expr.
-extern void WGEN_Process_Initialization (gs_t);
+extern void WGEN_Process_Initialization(gs_t);
 #endif /* KEY */
 
 /* generate a temp with extension 'name' having the initialization as specified
    by 'init' */
-extern ST *WGEN_Generate_Temp_For_Initialized_Aggregate (gs_t init, char *name);
+extern ST *WGEN_Generate_Temp_For_Initialized_Aggregate(gs_t init, char *name);
 
 /* handle __attribute__ ((alias)) */
-extern ST* WGEN_Assemble_Alias (gs_t decl, gs_t target);
+extern ST *WGEN_Assemble_Alias(gs_t decl, gs_t target);
 
 /* handle __attribute__ ((constructor)) */
-extern void WGEN_Assemble_Constructor (char *name);
+extern void WGEN_Assemble_Constructor(char *name);
 
 /* handle __attribute__ ((destructor)) */
-extern void WGEN_Assemble_Destructor (char *name);
+extern void WGEN_Assemble_Destructor(char *name);
 
 /* call this routine when have a decl that doesn't have an initialization */
-extern void WGEN_Decl (gs_t decl);
+extern void WGEN_Decl(gs_t decl);
 
 /* call this routine to determine the return address ST at specified level */
-extern ST *WGEN_Get_Return_Address_ST (int level);
+extern ST *WGEN_Get_Return_Address_ST(int level);
 
 /* call this routine to save the SP for first alloca in a scope */
-extern ST *WGEN_Alloca_0 (void);
+extern ST *WGEN_Alloca_0(void);
 
 /* call this routine to assign ST for VLA as well as allocate space for it */
-extern ST *WGEN_Alloca_ST (gs_t decl);
+extern ST *WGEN_Alloca_ST(gs_t decl);
 
 /* call this routine to deallocate STs for VLA */
-extern void WGEN_Dealloca (ST *, vector<ST*> *);
+extern void WGEN_Dealloca(ST *, vector<ST *> *);
 
 /* call this routine to resolve conflicts between duplicate declarations */
-extern void WGEN_Resolve_Duplicate_Decls (gs_t olddecl, gs_t newdecl);
+extern void WGEN_Resolve_Duplicate_Decls(gs_t olddecl, gs_t newdecl);
 
 /* call this routine to mark all the symbols in the weak decls list weak */
 extern "C" void WGEN_Weak_Finish(void);
@@ -130,4 +130,3 @@ extern WN *Current_Entry_WN(void);
 extern gs_t named_ret_obj_initializer;
 #endif
 #endif
-

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2007 Google, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -7,7 +7,7 @@
  *
  * This program is distributed in the hope that it would be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write the Free Software Foundation, Inc., 59
@@ -37,15 +37,13 @@ int WGEN_TRACE::gimple_depth = 0;
 
 static void print_indent(FILE *fp);
 
-static void print_indent(FILE *fp)
-{
-  for (int i=0; i<WGEN_TRACE::gimple_depth; i++) {
+static void print_indent(FILE *fp) {
+  for (int i = 0; i < WGEN_TRACE::gimple_depth; i++) {
     fprintf(fp, " ");
   }
 }
 
-void WGEN_TRACE::trace_gs(gs_t n)
-{
+void WGEN_TRACE::trace_gs(gs_t n) {
   if (Get_Trace(TKIND_IR, TP_WGEN)) {
     gs_code_t c = gs_tree_code(n);
     print_indent(TFile);
@@ -53,13 +51,12 @@ void WGEN_TRACE::trace_gs(gs_t n)
   }
 }
 
-WN* WGEN_Trace_wn(WN *wn)
-{
+WN *WGEN_Trace_wn(WN *wn) {
   if (Get_Trace(TKIND_IR, TP_WGEN)) {
     print_indent(TFile);
-    const char * fmt_str = (sizeof(INTPTR) == 8) ? 
-                            "+++ (0x%016x) " : "+++ (0x%08x) ";
-    fprintf(TFile, fmt_str, (INTPTR) wn);
+    const char *fmt_str =
+        (sizeof(INTPTR) == 8) ? "+++ (0x%016x) " : "+++ (0x%08x) ";
+    fprintf(TFile, fmt_str, (INTPTR)wn);
     fdump_wn(TFile, wn);
   }
   return wn;
