@@ -232,13 +232,14 @@ library lib clean-library clean-lib:
 	    echo $(MAKE) -C $$d $(LIB_ACTION); \
 	    $(MAKE) -C $$d $(LIB_ACTION); \
 	    retval=$$?; \
-	    if [ $$retval != 0 ]; then \
-		if grep -q k <<<'$(MAKEFLAGS)'; then \
-		    exit=$$retval; \
-		else \
-		    exit $$retval; \
-		fi; \
-	    fi; \
+	    # if [ $$retval != 0 ]; then \
+		# if grep -q k <<<'$(MAKEFLAGS)'; then \
+		#     exit=$$retval; \
+		# else \
+		#     exit $$retval; \
+		# fi; \
+	    # fi; \
+		echo ${retval};\
 	done; \
 	exit $$exit
 

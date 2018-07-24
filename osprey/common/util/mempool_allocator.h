@@ -83,7 +83,17 @@ public:
 
   void construct(pointer p, const T& val) { new(p) T(val); }
   void destroy(pointer p) { p->~T(); }
+#if __GNUC__ >= 5
+  friend bool operator!=(const mempool_allocator<T> &lhs, const mempool_allocator<T> &rhs);
+#endif
 };
+
+#if __GNUC__ >= 5
+template <class T>
+bool operator!=(const mempool_allocator<T> &lhs, const mempool_allocator<T> &rhs) {
+  return lhs.pool != rhs.pool;
+}
+#endif
 
 template<>
 class mempool_allocator<void> {

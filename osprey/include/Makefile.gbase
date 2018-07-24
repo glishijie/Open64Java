@@ -157,37 +157,37 @@ default: pathscale_defs.h
 	    fi; \
 	done	
 	@for h in $(LINUX_HFILES); do \
-	    if ! test -a $$h; then \
+	    if ! test -e $$h; then \
 	      ln -sf $(BUILD_TOT)/linux/include/$$h $$h; \
 	    fi; \
 	done
 	@for h in $(LINUX_SYS_HFILES); do \
-	    if ! test -a $$h; then \
+	    if ! test -e $$h; then \
 	      ln -sf $(BUILD_TOT)/linux/include/sys/$$h sys/$$h; \
 	    fi; \
 	done
 	@for h in $(INCLUDE_HFILES); do \
-	    if ! test -a $$h; then \
+	    if ! test -e $$h; then \
 	      ln -sf $(BUILD_TOT)/include/$$h $$h; \
 	    fi; \
 	done
 	@for h in $(CMPLR_DIRS); do \
-	    if ! test -a $$h; then \
+	    if ! test -e $$h; then \
 	      mkdir $$h; \
 	    fi; \
 	done
 	@for h in $(CMPLR_HFILES); do \
-	    if ! test -a cmplrs/$$h; then \
+	    if ! test -e cmplrs/$$h; then \
 	      ln -sf $(BUILD_TOT)/../include/cmplrs/$$h cmplrs/$$h; \
 	    fi; \
 	done
 	@for h in $(SYS_HFILES); do \
-	    if ! test -a sys/$$h; then \
+	    if ! test -e sys/$$h; then \
 	      ln -sf $(BUILD_TOT)/../include/sys/$$h sys/$$h; \
 	    fi; \
 	done
 	@for h in $(SYS_DIRS); do \
-	    if ! test -a sys/$$h; then \
+	    if ! test -e sys/$$h; then \
 	      ln -sf $(BUILD_TOT)/../include/sys/$$h sys/$$h; \
 	    fi; \
 	done
