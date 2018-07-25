@@ -50,7 +50,7 @@
 #include "ercg.h"
 #include "tracing.h"
 #include "config.h"
-#include "config_TARG.h"
+#include "config_TARGB.h"
 #include "config_debug.h"
 #include "xstats.h"
 #include "topcode.h"

@@ -54,7 +54,7 @@
 #include "config.h"
 #include "config_debug.h"
 #include "config_opt.h"
-#include "config_TARG.h"
+#include "config_TARGB.h"
 #include "errors.h"
 #include "erglob.h"
 #include "tracing.h"

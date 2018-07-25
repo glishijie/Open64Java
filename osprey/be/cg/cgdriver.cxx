@@ -66,7 +66,7 @@
 #include "config.h"
 #include "config_debug.h"
 #include "config_list.h"
-#include "config_TARG.h"
+#include "config_TARGB.h"
 #include "config_opt.h"
 #include "cg_flags.h"
 #include "controls.h"

@@ -55,7 +55,7 @@
 #include "defs.h"
 #include "util.h"
 #include "config.h"
-#include "config_TARG.h"
+#include "config_TARGB.h"
 #include "erglob.h"
 #include "tracing.h"
 #include "data_layout.h"

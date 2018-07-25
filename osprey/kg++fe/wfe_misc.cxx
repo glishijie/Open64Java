@@ -37,7 +37,7 @@
 #include "config.h"
 #include "config_debug.h"
 #include "config_list.h"
-#include "config_TARG.h"
+#include "config_TARGB.h"
 #include "controls.h"
 #include "erglob.h"
 #include "erlib.h"

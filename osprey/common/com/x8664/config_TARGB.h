@@ -40,11 +40,11 @@
 /* ====================================================================
  * ====================================================================
  *
- * Module: config_TARG.h
+ * Module: config_TARGB.h
  * $Revision: 1.7 $
  * $Date: 04/12/21 14:57:25-08:00 $
  * $Author: bos@eng-25.internal.keyresearch.com $
- * $Source: /home/bos/bk/kpro64-pending/common/com/x8664/SCCS/s.config_TARG.h $
+ * $Source: /home/bos/bk/kpro64-pending/common/com/x8664/SCCS/s.config_TARGB.h $
  *
  * Revision history:
  *  11-Apr-96 - Original Version
@@ -74,7 +74,7 @@
 
 #ifdef _KEEP_RCS_ID
 /*REFERENCED*/
-static char *config_TARG_h_rcs_id = "$Source: /home/bos/bk/kpro64-pending/common/com/x8664/SCCS/s.config_TARG.h $ $Revision: 1.7 $";
+static char *config_TARG_h_rcs_id = "$Source: /home/bos/bk/kpro64-pending/common/com/x8664/SCCS/s.config_TARGB.h $ $Revision: 1.7 $";
 #endif /* _KEEP_RCS_ID */
 
 #ifdef __cplusplus

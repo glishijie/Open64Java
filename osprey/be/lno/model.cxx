@@ -351,7 +351,7 @@ static char *rcs_id = "$Source: ../../be/lno/SCCS/s.model.cxx $ $Revision: 1.21 
 #include "cache_model.h"
 #include "reduc.h"
 #include "config.h"
-#include "config_TARG.h"
+#include "config_TARGB.h"
 #include "config_cache.h"
 #include "config_lno.h"
 #include "config_opt.h"
