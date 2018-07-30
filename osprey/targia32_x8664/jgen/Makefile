@@ -60,3 +60,6 @@ BUILD_OS       = LINUX
 #  Include setup file which will then include Makefile.base
 include $(BUILD_TOT)/Makefile.gsetup
 
+.PHONE: myclean
+hclean:
+	-rm -rf wgen*.o main.o wgen*.d main.d jgen

@@ -74,6 +74,7 @@ extern void WGEN_Expand_Defers(void);
 extern void WGEN_Expand_Decl(gs_t, BOOL);
 extern void WGEN_Expand_Emitted_Decl();
 
+
 //*******************************************************
 // Process the command line arguments.
 //*******************************************************
@@ -136,6 +137,13 @@ void Process_Command_Line(INT argc, char **argv) {
   }
 }
 
+void Set_Global_Cmd_Options() {
+  Orig_Src_File_Name = Spin_File_Name;
+  Src_File_Name = Spin_File_Name;
+  TARGET_64BIT = FALSE;
+}
+
+#if 0
 //*******************************************************
 // Process the cc1 command line arguments.
 //*******************************************************
@@ -262,6 +270,7 @@ void Process_Cc1_Command_Line(gs_t arg_list) {
     }
   }
 }
+#endif
 
 //*******************************************************
 // WGEN driver
@@ -272,75 +281,25 @@ int main(INT argc, char **argv, char **envp) {
   struct stat sbuf;
   int st;
 
-  Set_Error_Tables(Phases, host_errlist);
   Process_Command_Line(argc, argv);
-
   st = stat(Spin_File_Name, &sbuf);
   if (st == -1 && (errno == ENOENT || errno == ENOTDIR))
     printf("wgen: file %s does not exist\n", Spin_File_Name);
-  else if ((program = gs_read_file(Spin_File_Name)) != (gs_t)NULL) {
-    //	gs_dump(program);
+  Set_Global_Cmd_Options();
+  Set_Error_Tables(Phases, host_errlist);
+  WGEN_Init(argc, argv, envp);
+  WGEN_File_Init(argc, argv);
 
-    Process_Cc1_Command_Line(gs_cc1_command_line_args(program));
+  
 
-    WGEN_Init(argc, argv, envp);
-
-    WGEN_File_Init(argc, argv);
-
-    gs_t list = gs_operand(program, GS_PROGRAM_DECLARATIONS);
-    // in bug 10185, first list node is  NULL, so skip first node
-    if (gs_code(list) != EMPTY)
-      list = gs_operand(list, 1);
-    for (; gs_code(list) != EMPTY; list = gs_operand(list, 1)) {
-      gs_t decl = gs_operand(list, 0);
-      if (lang_cplus) // czw
-        WGEN_Expand_Top_Level_Decl(decl);
-      else
-        WGEN_Expand_Decl(decl, TRUE);
-#ifdef KEY
-      WGEN_Expand_Defers();
-#endif
-    }
-    /*if(lang_java)
-    {
-            gs_t list = gs_operand(program, GS_PROGRAM_DECLARATIONS);
-            // in bug 10185, first list node is  NULL, so skip first node
-            if (gs_code(list) != EMPTY)
-                    list = gs_operand(list, 1);
-            for (; gs_code(list) != EMPTY; list = gs_operand(list, 1)) {
-                gs_t decl = gs_operand(list, 0);
-                    // process methods
-                    //if (!Enable_WGEN_DFE) {
-                            //if (cp_type_quals(type_tree) == TYPE_UNQUALIFIED)
-    { gs_t type = gs_tree_type(decl); gs_t method = gs_type_methods(type);
-                                    if(method != 0)
-                                    {
-                                            do
-                                            {
-                                                    WGEN_Expand_Decl (method,
-    TRUE); method = gs_tree_chain(method);
-                                            }
-                                            while(method);
-                                    }
-                            //}
-                    //}
-            }
-    }*/
-    if (lang_java) // czw
-    {
-      WGEN_Expand_Emitted_Decl();
-    }
-
-    WGEN_Weak_Finish();
-    WGEN_File_Finish();
-    WGEN_Finish();
-  } else
-    printf("wgen: libspin returned (gs_t) NULL.\n");
-
+  WGEN_File_Finish();
+  WGEN_Finish();
   WGEN_Check_Errors(&error_count, &sorry_count, &need_inliner);
-  if (error_count)
+  if (error_count) {
     Terminate(RC_INTERNAL_ERROR);
-  if (need_inliner && ((!Enable_WFE_DFE) || (Opt_Level > 1)))
+  }
+  if (need_inliner && ((!Enable_WFE_DFE) || (Opt_Level > 1))) {
     exit(RC_NEED_INLINER);
+  }
   exit(RC_OKAY);
 }

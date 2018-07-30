@@ -627,12 +627,12 @@ WN *WGEN_Stmt_Pop(WGEN_STMT_KIND kind) {
   return (wn);
 } /* WGEN_Stmt_Pop */
 
-  /*
-  void process_diag_override_option(an_option_kind kind,
-                                    char          *opt_arg)
-  {
-  }
-  */
+/*
+void process_diag_override_option(an_option_kind kind,
+                                  char          *opt_arg)
+{
+}
+*/
 
 #ifdef KEY
 // To assist in WGEN_Lhs_Of_Modify_Expr
