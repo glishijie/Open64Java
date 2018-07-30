@@ -168,6 +168,7 @@ INSTALL_FE () {
     INSTALL_EXEC_SUB ${AREA}/gccfe/gfec  ${PHASEPATH}/gfec
     INSTALL_EXEC_SUB ${AREA}/g++fe/gfecc ${PHASEPATH}/gfecc
     INSTALL_EXEC_SUB ${AREA}/wgen/wgen ${PHASEPATH}/wgen
+    INSTALL_EXEC_SUB ${AREA}/jgen/jgen ${PHASEPATH}/jgen
     INSTALL_EXEC_SUB ${GNUFE_AREA}/gcc/cc1 ${PHASEPATH}/cc1
     INSTALL_EXEC_SUB ${GNUFE_AREA}/gcc/cc1plus ${PHASEPATH}/cc1plus
     INSTALL_EXEC_SUB ${GNUFE_AREA}/gcc/jc1 ${PHASEPATH}/jc1

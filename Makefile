@@ -134,6 +134,9 @@ $(NATIVE_BUILD_DIR)/gccfe/gfec gfec:
 $(NATIVE_BUILD_DIR)/wgen/wgen wgen:
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/wgen
 
+$(NATIVE_BUILD_DIR)/jgen/jgen jgen:
+	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/jgen
+
 $(NATIVE_BUILD_DIR)/g++fe/gfecc gfecc:
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/g++fe
 
@@ -247,7 +250,8 @@ library lib clean-library clean-lib:
 clobber clean: clean-lib
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/driver clobber 
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/gccfe clobber 
-	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/wgen clobber 
+	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/wgen clobber
+	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/jgen clobber 
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/g++fe clobber
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/be clobber 
 	$(SUBMAKE) -C $(NATIVE_BUILD_DIR)/cg clobber 
