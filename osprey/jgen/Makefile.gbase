@@ -178,7 +178,8 @@ FE_CXX_SRCS =           \
 JGEN_CXX_SRCS =         \
     $(LIB_JSON_DIR)/jsoncpp.cpp     \
     jgen_type.cxx       \
-    json_reader.cxx
+    json_reader.cxx     \
+    jgen_node_helper.cxx
 
 COMMON_COM_CXX_SRCS =   \
    config.cxx           \

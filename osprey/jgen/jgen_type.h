@@ -1,22 +1,27 @@
+#ifndef JGEN_TYPE_H
+#define JGEN_TYPE_H
+
 #include <json/json.h>
 #include <map>
+#include <string>
 
-#include "defs.h"
+#include "jgen_include.h"
 #include "symtab_idx.h"
 
 namespace JGEN {
-class TypeHandler {
-    public:
-    static void init();
-    static TY_IDX addType(Json::Value& jTypeTree, mUINT32 jIndex);
-    static mUINT32 getType(mUINT32 jIndex);
-    
-    private:
-    static TY_IDX addPrimitiveType(Json::Value& jTypeTree, mUINT32 jIndex);
-    static TY_IDX addClassType(Json::Value& jTypeTree, mUINT32 jIndex);
 
-    private:
-    static std::map<mUINT32, TY_IDX> *typeCache;
-};
+    class TypeHandler {
+        public:
+        static void init();
+        static TY_IDX addType(Json::Value &type);
+        static mUINT32 getType(Json::Value &type);
+        
+        private:
+        static TY_IDX addClassType(Json::Value &type);
+
+        private:
+        static std::map<Json::Value *, TY_IDX> *typeCache;
+    };
 }
 
+#endif
