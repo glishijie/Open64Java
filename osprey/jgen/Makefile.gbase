@@ -117,9 +117,11 @@ COMMON_COM_TARG_DIR     = $(BUILD_TOT)/common/com/$(BUILD_TARGET_DIR)
 COMMON_TARG_INFO_ACCESS_DIR = $(BUILD_TOT)/common/targ_info/access
 COMMON_UTIL_DIR         = $(BUILD_TOT)/common/util
 COMMON_UTIL_TARG_DIR    = $(BUILD_TOT)/common/util/$(BUILD_TARGET_DIR)
+LIB_JSON_DIR            = $(BUILD_BASE)/libjson
 
 INCLUDE_DIR             = $(BUILD_AREA)/include \
-                          $(BUILD_TOT)/../libspin
+                          $(BUILD_TOT)/../libspin \
+                          $(LIB_JSON_DIR)
 
 TARG_COMUTIL_DIR        = $(TARGDIR)/libcomutil
 TARG_CMPLRS_DIR         = $(TARGDIR)/libcmplrs
@@ -151,11 +153,11 @@ INC_DIRS =              \
 #----------------------------------------------------------------------
 
 FE_C_SRCS =             \
-    main.c         	\
     varasm.c		\
     c_int_model.c       
 
 FE_CXX_SRCS =           \
+    main.cxx            \
     wgen_misc.cxx       \
     wgen_expr.cxx       \
     wgen_stmt.cxx       \
@@ -172,6 +174,11 @@ FE_CXX_SRCS =           \
 #   wfe_omp_check_stack.cxx \
 #   wfe_omp_directives.cxx \
 #   wfe_stmt.cxx
+
+JGEN_CXX_SRCS =         \
+    $(LIB_JSON_DIR)/jsoncpp.cpp     \
+    jgen_type.cxx       \
+    json_reader.cxx
 
 COMMON_COM_CXX_SRCS =   \
    config.cxx           \
@@ -223,7 +230,8 @@ FRONT_END_C_SRCS =              \
 FRONT_END_CXX_SRCS =            \
    $(COMMON_COM_CXX_SRCS)       \
    $(COMMON_COM_TARG_CXX_SRCS)  \
-   $(FE_CXX_SRCS)
+   $(FE_CXX_SRCS)               \
+   $(JGEN_CXX_SRCS)
 
 FRONT_END_C_OBJS = $(FRONT_END_C_SRCS:T:.c=.o)
 

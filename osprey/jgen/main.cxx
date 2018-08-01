@@ -42,6 +42,8 @@
 #include "file_util.h" // for Last_Pathname_Component
 #include "wgen_misc.h"
 
+#include "json_reader.h"
+
 extern BOOL List_Enabled;
 extern INT Opt_Level;
 extern BOOL Enable_WFE_DFE;
@@ -272,6 +274,12 @@ void Process_Cc1_Command_Line(gs_t arg_list) {
 }
 #endif
 
+using namespace JGEN;
+
+void addTypeTree(Json::Value& typeTree) {
+    
+}
+
 //*******************************************************
 // WGEN driver
 //*******************************************************
@@ -285,15 +293,24 @@ int main(INT argc, char **argv, char **envp) {
   st = stat(Spin_File_Name, &sbuf);
   if (st == -1 && (errno == ENOENT || errno == ENOTDIR))
     printf("wgen: file %s does not exist\n", Spin_File_Name);
-  Set_Global_Cmd_Options();
-  Set_Error_Tables(Phases, host_errlist);
-  WGEN_Init(argc, argv, envp);
-  WGEN_File_Init(argc, argv);
+  else {
+    Set_Global_Cmd_Options();
+    Set_Error_Tables(Phases, host_errlist);
+    WGEN_Init(argc, argv, envp);
+    WGEN_File_Init(argc, argv);
 
-  
+    Json_IR jsonObject = Json_IR();
+    int readResult = jsonObject.read(Spin_File_Name);
+    if(readResult != 0) {
+      printf("read json file failed: %d\n", readResult);
+      goto END;
+    }
+    addTypeTree(jsonObject.get_type_tree());
+    WGEN_File_Finish();
+    WGEN_Finish();
+  }
 
-  WGEN_File_Finish();
-  WGEN_Finish();
+END:
   WGEN_Check_Errors(&error_count, &sorry_count, &need_inliner);
   if (error_count) {
     Terminate(RC_INTERNAL_ERROR);
