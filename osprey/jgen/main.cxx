@@ -43,6 +43,7 @@
 #include "wgen_misc.h"
 
 #include "json_reader.h"
+#include "jgen_type.h"
 
 extern BOOL List_Enabled;
 extern INT Opt_Level;
@@ -75,6 +76,8 @@ extern void WGEN_Expand_Top_Level_Decl(gs_t);
 extern void WGEN_Expand_Defers(void);
 extern void WGEN_Expand_Decl(gs_t, BOOL);
 extern void WGEN_Expand_Emitted_Decl();
+
+using namespace Json;
 
 
 //*******************************************************
@@ -276,8 +279,15 @@ void Process_Cc1_Command_Line(gs_t arg_list) {
 
 using namespace JGEN;
 
+#include <iostream>
+
 void addTypeTree(Json::Value& typeTree) {
-    
+    for(Value::iterator I = typeTree.begin(); I != typeTree.end(); ++I) {
+      std::cout << (*I).toStyledString() << std::endl;
+      if((*I)["kind"].asInt() == 9) {
+        TypeHandler::addType(*I);
+      }
+    }
 }
 
 //*******************************************************
@@ -305,6 +315,9 @@ int main(INT argc, char **argv, char **envp) {
       printf("read json file failed: %d\n", readResult);
       goto END;
     }
+
+    TypeHandler::init();
+
     addTypeTree(jsonObject.get_type_tree());
     WGEN_File_Finish();
     WGEN_Finish();

@@ -17,7 +17,7 @@ namespace JGEN {
         static mUINT32 getType(Json::Value &type);
         
         private:
-        static TY_IDX addClassType(Json::Value &type);
+        static TY_IDX addClassType(Json::Value &type, TY_IDX idx);
 
         private:
         static std::map<Json::Value *, TY_IDX> *typeCache;

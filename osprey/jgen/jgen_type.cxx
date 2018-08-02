@@ -11,25 +11,28 @@ void TypeHandler::init() {
     typeCache = new map<Value *, TY_IDX>();
 }
 
-TY_IDX TypeHandler::addClassType(Value &type) {
+TY_IDX TypeHandler::addClassType(Value &type, TY_IDX idx) {
 
-#if 0
-    TY_IDX idx;
+    JGenClassTypeNode *typeNode = (JGenClassTypeNode *) JGenNodeHelper::createTypeNode(type);
     TY &ty = (idx == TY_IDX_ZERO) ? New_TY(idx) : Ty_Table[idx];
     int tsize = 4;
 
     TY_Init(ty, tsize, KIND_STRUCT, MTYPE_M,
-            Save_Str(Get_Name(gs_type_name(type_tree))));
+            Save_Str(typeNode->getName()));
 
-    if (gs_type_name(type_tree) == NULL)
+    if (typeNode->isAnonymous())
       Set_TY_anonymous(ty);
 
+    int align = typeNode->getAlign();
     if (align == 0)
       align = 1; // in case incomplete type
     Set_TY_align(idx, align);
     // set idx now in case recurse thru fields
-    TYPE_TY_IDX(type_tree) = idx;
-    Do_Base_Types(type_tree);
+    // typeCache[&type] = idx;
+    typeCache->insert(std::make_pair<Value *, TY_IDX>(&type, idx));
+
+    // TODO: visit extends class
+    // Do_Base_Types(type_tree);
 
     // Process nested structs and static data members first
 
@@ -343,13 +346,17 @@ TY_IDX TypeHandler::addClassType(Value &type) {
       }
     }
 #endif // KEY
-#endif
+
+  return idx;
 }
 
 TY_IDX TypeHandler::addType(Value &type) {
 
-    JGenTypeNode *typeNode = JGenNodeHelper::createTypeNode(type);
-    switch(typeNode->getKind()) {
+    FmtAssert(type.isMember("kind"), ("Type node don't have key: kind."));
+    if(typeCache->find(&type) != typeCache->end()) {
+      return typeCache->find(&type)->second;
+    }
+    switch(type["kind"].asUInt()) {
         case jBYTE:
             return MTYPE_To_TY(MTYPE_I1);
         case jCHAR:
@@ -370,14 +377,13 @@ TY_IDX TypeHandler::addType(Value &type) {
         case jVOID:
             return MTYPE_To_TY(MTYPE_V);
         case jCLASS:
-            return addClassType(typeNode->node);
+            return addClassType(type, TY_IDX_ZERO);
         case jPACKAGE:
             return TY_IDX_ZERO;
         default:
             FmtAssert(0, ("Handle type later."));
             return TY_IDX_ZERO;
     }
-    JGenNodeHelper::deallocTypeNode(typeNode);
 }
 
 TY_IDX TypeHandler::getType(Value &type) {

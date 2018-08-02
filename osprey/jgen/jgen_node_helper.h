@@ -4,6 +4,8 @@
 #include "json/json.h"
 #include "jgen_include.h"
 
+#include <iostream>
+
 class Json_IR;
 
 namespace JGEN {
@@ -133,12 +135,13 @@ namespace JGEN {
         explicit JGenTypeNode(Json_IR &_jsonIR, Json::Value &_node): JGenNode(_jsonIR, _node, JGenTypeCat) {
         }
 
-        std::string getName() {
+        const char *getName() {
             FmtAssert(node.isMember("name"), ("type node don't have key: name."));
-            return node["name"].asString();
+            return node["name"].asCString();
         }
 
         mUINT32 getKind() {
+            std::cout << node.toStyledString() << std::endl;
             FmtAssert(node.isMember("kind"), ("type node don't have key: kind."));
             return node["kind"].asUInt();
         }
@@ -151,6 +154,8 @@ namespace JGEN {
         bool isPrimitive() {
             return getKind() <= jVOID;
         }
+
+        virtual mUINT32 getAlign() = 0;
         
     };
 
@@ -158,12 +163,24 @@ namespace JGEN {
         public:
         explicit JGenPrimitiveTypeNode(Json_IR &_jsonIR, Json::Value &node): JGenTypeNode(_jsonIR, node) {
         }
+
+        mUINT32 getAlign() {
+            return 0;
+        }
         
     };
 
     class JGenClassTypeNode : public JGenTypeNode {
         public:
         explicit JGenClassTypeNode(Json_IR &_jsonIR, Json::Value &node): JGenTypeNode(_jsonIR, node) {
+        }
+
+        bool isAnonymous() {
+            return false;
+        }
+
+        mUINT32 getAlign() {
+            return 4;
         }
     };
 
@@ -188,6 +205,8 @@ namespace JGEN {
                     return new JGenPrimitiveTypeNode(*jsonIR, node);
                 case jCLASS:
                     return new JGenClassTypeNode(*jsonIR, node);
+                default:
+                    FmtAssert(0, ("not handle other type."));
             }
         }
 
