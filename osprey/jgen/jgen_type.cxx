@@ -1,41 +1,40 @@
 #include "jgen_type.h"
-#include "jgen_node_helper.h"
+#include "jgen_node_provider.h"
 
 using namespace JGEN;
 using namespace Json;
 using namespace std;
 
-map<Value *, TY_IDX> *TypeHandler::typeCache;
+map<JGenTypeNode *, TY_IDX> *TypeHandler::typeCache;
 
 void TypeHandler::init() {
-    typeCache = new map<Value *, TY_IDX>();
+    typeCache = new map<JGenTypeNode *, TY_IDX>();
 }
 
-TY_IDX TypeHandler::addClassType(Value &type, TY_IDX idx) {
+TY_IDX TypeHandler::addClassType(JGenClassTypeNode *type, TY_IDX idx) {
 
-    JGenClassTypeNode *typeNode = (JGenClassTypeNode *) JGenNodeHelper::createTypeNode(type);
     TY &ty = (idx == TY_IDX_ZERO) ? New_TY(idx) : Ty_Table[idx];
     int tsize = 4;
 
     TY_Init(ty, tsize, KIND_STRUCT, MTYPE_M,
-            Save_Str(typeNode->getName()));
+            Save_Str(type->getName()));
 
-    if (typeNode->isAnonymous())
+    if (type->isAnonymous())
       Set_TY_anonymous(ty);
 
-    int align = typeNode->getAlign();
+    int align = type->getAlign();
     if (align == 0)
       align = 1; // in case incomplete type
     Set_TY_align(idx, align);
     // set idx now in case recurse thru fields
     // typeCache[&type] = idx;
-    typeCache->insert(std::make_pair<Value *, TY_IDX>(&type, idx));
+    typeCache->insert(std::make_pair<JGenTypeNode *, TY_IDX>(type, idx));
 
     // TODO: visit extends class
     // Do_Base_Types(type_tree);
 
     // Process nested structs and static data members first
-
+#if 0
     for (gs_t field = get_first_real_or_virtual_field(type_tree); field;
          field = next_real_field(type_tree, field)) {
       Set_TY_content_seen(idx); // bug 10851
@@ -346,17 +345,16 @@ TY_IDX TypeHandler::addClassType(Value &type, TY_IDX idx) {
       }
     }
 #endif // KEY
-
+#endif
   return idx;
 }
 
-TY_IDX TypeHandler::addType(Value &type) {
+TY_IDX TypeHandler::getType(JGenTypeNode *type) {
 
-    FmtAssert(type.isMember("kind"), ("Type node don't have key: kind."));
-    if(typeCache->find(&type) != typeCache->end()) {
-      return typeCache->find(&type)->second;
+    if(typeCache->find(type) != typeCache->end()) {
+      return typeCache->find(type)->second;
     }
-    switch(type["kind"].asUInt()) {
+    switch(type->getKind()) {
         case jBYTE:
             return MTYPE_To_TY(MTYPE_I1);
         case jCHAR:
@@ -377,15 +375,11 @@ TY_IDX TypeHandler::addType(Value &type) {
         case jVOID:
             return MTYPE_To_TY(MTYPE_V);
         case jCLASS:
-            return addClassType(type, TY_IDX_ZERO);
+            return addClassType(static_cast<JGenClassTypeNode *>(type), TY_IDX_ZERO);
         case jPACKAGE:
             return TY_IDX_ZERO;
         default:
             FmtAssert(0, ("Handle type later."));
             return TY_IDX_ZERO;
     }
-}
-
-TY_IDX TypeHandler::getType(Value &type) {
-
 }

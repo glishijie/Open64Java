@@ -44,6 +44,8 @@
 
 #include "json_reader.h"
 #include "jgen_type.h"
+#include <iostream>
+#include "jgen_node_provider.h"
 
 extern BOOL List_Enabled;
 extern INT Opt_Level;
@@ -279,13 +281,14 @@ void Process_Cc1_Command_Line(gs_t arg_list) {
 
 using namespace JGEN;
 
-#include <iostream>
+
 
 void addTypeTree(Json::Value& typeTree) {
     for(Value::iterator I = typeTree.begin(); I != typeTree.end(); ++I) {
       std::cout << (*I).toStyledString() << std::endl;
       if((*I)["kind"].asInt() == 9) {
-        TypeHandler::addType(*I);
+        JGenNodeProvider::getTypeNode(*I);
+        // TypeHandler::getType();
       }
     }
 }
@@ -316,6 +319,7 @@ int main(INT argc, char **argv, char **envp) {
       goto END;
     }
 
+    JGenNodeProvider::init(&jsonObject);
     TypeHandler::init();
 
     addTypeTree(jsonObject.get_type_tree());
