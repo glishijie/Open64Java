@@ -118,10 +118,12 @@ COMMON_TARG_INFO_ACCESS_DIR = $(BUILD_TOT)/common/targ_info/access
 COMMON_UTIL_DIR         = $(BUILD_TOT)/common/util
 COMMON_UTIL_TARG_DIR    = $(BUILD_TOT)/common/util/$(BUILD_TARGET_DIR)
 LIB_JSON_DIR            = $(BUILD_BASE)/libjson
+LIB_LOG_DIR             = $(BUILD_BASE)/libeasylogging
 
 INCLUDE_DIR             = $(BUILD_AREA)/include \
                           $(BUILD_TOT)/../libspin \
-                          $(LIB_JSON_DIR)
+                          $(LIB_JSON_DIR)        \
+                          $(LIB_LOG_DIR)
 
 TARG_COMUTIL_DIR        = $(TARGDIR)/libcomutil
 TARG_CMPLRS_DIR         = $(TARGDIR)/libcmplrs

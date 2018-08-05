@@ -62,7 +62,7 @@ namespace JGEN {
     }
 
     Json::Value& Json_IR::get_code_tree() {
-        Json::Value val = root["code_table"];
+        Json::Value &val = root["code_table"];
         return val;
     }
 

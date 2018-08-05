@@ -25,8 +25,12 @@ JGenCodeNode *JGenNodeProvider::getCodeNode(Value &node) {
         case JGEN_CLASSDEF:
             jgenNode =  new JGenClassDefNode(*jsonIR, node);
             break;
+        case JGEN_METHODDEF:
+            jgenNode = new JGenMethodDefNode(*jsonIR, node);
+            break;
         default:
             FmtAssert(0, ("not handle tag: %d.", node["tag"]));
+            break;
     }
     nodeCache->insert(make_pair<Value *, JGenNode *>(&node, jgenNode));
     return static_cast<JGenCodeNode *>(jgenNode);
@@ -54,6 +58,7 @@ JGenTypeNode *JGenNodeProvider::getTypeNode(Value &node) {
             break;
         default:
             FmtAssert(0, ("not handle other type."));
+            break;
     }
     nodeCache->insert(make_pair<Value *, JGenNode *>(&node, jgenNode));
     return static_cast<JGenTypeNode *>(jgenNode);

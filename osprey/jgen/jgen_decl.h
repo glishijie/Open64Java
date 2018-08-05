@@ -2,8 +2,7 @@
 #define JGEN_DECL_H
 
 #include "jgen_code.h"
-
-#include <vector>
+#include "jgen_type.h"
 
 namespace JGEN {
 
@@ -22,17 +21,17 @@ class JGenTopLevelNode: public JGenDeclNode {
         delete imports;
     }
 
-    std::vector<JGenCodeNode *> *getClazzDefs() {
+    CodeVector *getClazzDefs() {
         return clazzDefs;
     }
 
-    std::vector<JGenCodeNode *> *getImports() {
+    CodeVector *getImports() {
         return imports;
     }
 
     private:
-    std::vector<JGenCodeNode *> *clazzDefs;
-    std::vector<JGenCodeNode *> *imports;
+    CodeVector *clazzDefs;
+    CodeVector *imports;
 };
 
 class JGenImportNode: public JGenDeclNode {
@@ -43,7 +42,27 @@ class JGenImportNode: public JGenDeclNode {
 
 class JGenClassDefNode: public JGenDeclNode {
     public:
-    explicit JGenClassDefNode(Json_IR &_jsonIR, Json::Value &_node): JGenDeclNode(_jsonIR, _node) {
+    explicit JGenClassDefNode(Json_IR &_jsonIR, Json::Value &_node);
+    ~JGenClassDefNode() {
+        delete methodDefs;
+    }
+
+    CodeVector *getMethodDefs() {
+        return methodDefs;
+    }
+
+    JGenTypeNode *getType();
+
+    private:
+    CodeVector *methodDefs;
+};
+
+class JGenMethodDefNode: public JGenDeclNode {
+    public:
+    explicit JGenMethodDefNode(Json_IR &_jsonIR, Json::Value &node): JGenDeclNode(_jsonIR, node) {
+    }
+
+    ~JGenMethodDefNode() {
     }
 };
 

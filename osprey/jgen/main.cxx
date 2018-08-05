@@ -46,6 +46,10 @@
 #include "jgen_type.h"
 #include <iostream>
 #include "jgen_node_provider.h"
+#include "jgen_visitor.h"
+// #include "easylogging++.h"
+
+// _INITIALIZE_EASYLOGGINGPP
 
 extern BOOL List_Enabled;
 extern INT Opt_Level;
@@ -312,17 +316,27 @@ int main(INT argc, char **argv, char **envp) {
     WGEN_Init(argc, argv, envp);
     WGEN_File_Init(argc, argv);
 
-    Json_IR jsonObject = Json_IR();
-    int readResult = jsonObject.read(Spin_File_Name);
+    Json_IR jsonIR = Json_IR();
+    int readResult = jsonIR.read(Spin_File_Name);
     if(readResult != 0) {
       printf("read json file failed: %d\n", readResult);
       goto END;
     }
 
-    JGenNodeProvider::init(&jsonObject);
+    // LINFO << "###### This is my first log";
+
+    JGenNodeProvider::init(&jsonIR);
     TypeHandler::init();
 
-    addTypeTree(jsonObject.get_type_tree());
+    JGEN_Visitor *visitor = new JGEN_Visitor();
+    Value &topLevelJson = jsonIR.get_code_tree();
+    FmtAssert(topLevelJson.isMember("tag"), ("node don't have key : tag."));
+    FmtAssert(topLevelJson["tag"].asUInt() == JGEN_TOPLEVEL, ("code table root object is not toplevel."));
+    
+    JGenTopLevelNode *topLevel = static_cast<JGenTopLevelNode *>(JGenNodeProvider::getCodeNode(topLevelJson));
+    visitor->visit_toplevel(topLevel);
+
+    // addTypeTree(jsonIR.get_type_tree());
     WGEN_File_Finish();
     WGEN_Finish();
   }

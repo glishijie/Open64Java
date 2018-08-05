@@ -4,6 +4,8 @@
 #include "jgen_node.h"
 #include "jgen_include.h"
 
+#include <vector>
+
 namespace JGEN {
 
 enum JGenCodeTag {
@@ -282,6 +284,9 @@ class JGenCodeNode: public JGenNode {
         return (JGenCodeTag) node["tag"].asUInt();
     }
 };
+
+typedef std::vector<JGenCodeNode *> CodeVector;
+typedef std::vector<JGenCodeNode *>::iterator CodeVectorIter;
 
 }
 #endif

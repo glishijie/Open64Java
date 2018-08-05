@@ -20,6 +20,7 @@ class JGEN_Visitor {
     int visit(JGenCodeNode *node);
     int visit_toplevel(JGenTopLevelNode *node);
     int visit_classdef(JGenClassDefNode *node);
+    int visit_methoddef(JGenMethodDefNode *node);
 };
 
 }
