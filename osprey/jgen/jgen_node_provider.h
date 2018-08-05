@@ -6,7 +6,9 @@
 #include "jgen_include.h"
 #include <map>
 #include "jgen_node.h"
+#include "jgen_code.h"
 #include "jgen_type.h"
+#include "jgen_symbol.h"
 
 namespace JGEN {
 
@@ -17,7 +19,9 @@ class JGenNodeProvider {
         nodeCache = new std::map<Json::Value *, JGenNode *>();
     }
 
+    static JGenCodeNode *getCodeNode(Json::Value &node);
     static JGenTypeNode *getTypeNode(Json::Value &node);
+    static JGenSymbolNode *getSymbolNode(Json::Value &node);
 
     static Json_IR *getIR() {
         return jsonIR;
