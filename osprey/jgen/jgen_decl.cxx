@@ -5,14 +5,6 @@ using namespace std;
 using namespace Json;
 using namespace JGEN;
 
-// keep pu and pu_info
-extern PU_Info *PU_Tree_Root;
-static PU_Info *PU_Info_Table[258] = {0};
-
-static ST *Return_Address_ST[258] = {0};
-static BOOL map_mempool_initialized = FALSE;
-static MEM_POOL Map_Mem_Pool;
-
 JGenTopLevelNode::JGenTopLevelNode(Json_IR &_jsonIR, Value &_node): JGenDeclNode(_jsonIR, _node) {
     clazzDefs = new CodeVector();
     imports = new CodeVector();
