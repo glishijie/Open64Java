@@ -44,6 +44,7 @@
 
 #include "json_reader.h"
 #include "jgen_type.h"
+#include "jgen_symbol.h"
 #include <iostream>
 #include "jgen_node_provider.h"
 #include "jgen_visitor.h"
@@ -297,6 +298,10 @@ void addTypeTree(Json::Value& typeTree) {
     }
 }
 
+void initJGen() {
+
+}
+
 //*******************************************************
 // WGEN driver
 //*******************************************************
@@ -327,11 +332,12 @@ int main(INT argc, char **argv, char **envp) {
 
     JGenNodeProvider::init(&jsonIR);
     TypeHandler::init();
+    SymbolHandler::init();
 
     JGEN_Visitor *visitor = new JGEN_Visitor();
     Value &topLevelJson = jsonIR.get_code_tree();
     FmtAssert(topLevelJson.isMember("tag"), ("node don't have key : tag."));
-    FmtAssert(topLevelJson["tag"].asUInt() == JGEN_TOPLEVEL, ("code table root object is not toplevel."));
+    FmtAssert(topLevelJson["tag"].asInt() == JGEN_TOPLEVEL, ("code table root object is not toplevel."));
     
     JGenTopLevelNode *topLevel = static_cast<JGenTopLevelNode *>(JGenNodeProvider::getCodeNode(topLevelJson));
     visitor->visit_toplevel(topLevel);

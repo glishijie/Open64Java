@@ -3,6 +3,7 @@
 
 #include "jgen_code.h"
 #include "jgen_type.h"
+#include "jgen_symbol.h"
 
 namespace JGEN {
 
@@ -59,11 +60,28 @@ class JGenClassDefNode: public JGenDeclNode {
 
 class JGenMethodDefNode: public JGenDeclNode {
     public:
-    explicit JGenMethodDefNode(Json_IR &_jsonIR, Json::Value &node): JGenDeclNode(_jsonIR, node) {
-    }
+    explicit JGenMethodDefNode(Json_IR &_jsonIR, Json::Value &node);
 
     ~JGenMethodDefNode() {
     }
+
+    // maybe null
+    CodeVector *getParameterVector() {
+        return parameterVector;
+    }
+
+    JGenTypeNode *getType();
+
+    JGenSymbolNode *getSymbol();
+
+    // maybe null
+    JGenCodeNode *getBody() {
+        return body;
+    }
+
+    private:
+    CodeVector *parameterVector;
+    JGenCodeNode *body;
 };
 
 class JGenVarDeclNode: public JGenDeclNode {

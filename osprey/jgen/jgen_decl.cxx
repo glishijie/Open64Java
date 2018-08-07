@@ -5,6 +5,14 @@ using namespace std;
 using namespace Json;
 using namespace JGEN;
 
+// keep pu and pu_info
+extern PU_Info *PU_Tree_Root;
+static PU_Info *PU_Info_Table[258] = {0};
+
+static ST *Return_Address_ST[258] = {0};
+static BOOL map_mempool_initialized = FALSE;
+static MEM_POOL Map_Mem_Pool;
+
 JGenTopLevelNode::JGenTopLevelNode(Json_IR &_jsonIR, Value &_node): JGenDeclNode(_jsonIR, _node) {
     clazzDefs = new CodeVector();
     imports = new CodeVector();
@@ -12,9 +20,9 @@ JGenTopLevelNode::JGenTopLevelNode(Json_IR &_jsonIR, Value &_node): JGenDeclNode
     Value &defs = node["defs"];
     for(Value::iterator I = defs.begin(); I != defs.end(); ++I) {
         FmtAssert((*I).isMember("tag"), ("node don't have key : tag."));
-        if((*I)["tag"].asUInt() == JGEN_CLASSDEF) {
+        if((*I)["tag"].asInt() == JGEN_CLASSDEF) {
             clazzDefs->push_back(JGenNodeProvider::getCodeNode(*I));
-        } else if((*I)["tag"].asUInt() == JGEN_IMPORT) {
+        } else if((*I)["tag"].asInt() == JGEN_IMPORT) {
             imports->push_back(JGenNodeProvider::getCodeNode(*I));
         } else {
             FmtAssert(0, ("toplevel's defs can't contains tag : %s.", node["tag_name"]));
@@ -28,15 +36,44 @@ JGenClassDefNode::JGenClassDefNode(Json_IR &_jsonIR, Value &_node): JGenDeclNode
     Value &defs = node["defs"];
     for(Value::iterator I = defs.begin(); I != defs.end(); ++I) {
         FmtAssert((*I).isMember("tag"), ("node don't have key : tag."));
-        FmtAssert((*I)["tag"].asUInt() == JGEN_METHODDEF, ("class node contains node is not METHODDEF."));
+        FmtAssert((*I)["tag"].asInt() == JGEN_METHODDEF, ("class node contains node is not METHODDEF."));
         methodDefs->push_back(JGenNodeProvider::getCodeNode(*I));
     }
 }
 
 JGenTypeNode *JGenClassDefNode::getType() {
     FmtAssert(node.isMember("type"), ("node don't have key : type."));
-    mUINT32 jIndex = node["type"].asUInt();
-    FmtAssert(jIndex >= 100 && jsonIR.get_type_tree().size() > (jIndex - 100), ("class type index out of bounds."));
-    Value &type = jsonIR.get_type_tree()[jIndex - 100];
-    return JGenNodeProvider::getTypeNode(type);
+    mINT32 jIndex = node["type"].asInt();
+    JGenTypeNode *type = JGenNodeProvider::getTypeNode(jsonIR.get_type(jIndex));
+    FmtAssert(type->getKind() == JGEN_TYPE_CLASS, ("class's type is not CLASS."));
+    return type;
+}
+
+JGenMethodDefNode::JGenMethodDefNode(Json_IR &_jsonIR, Json::Value &node): JGenDeclNode(_jsonIR, node) {
+    if(node.isMember("params")) {
+        parameterVector = new CodeVector();
+        Value &params = node["params"];
+        for(Value::iterator I = params.begin(); I != params.end(); ++I) {
+            parameterVector->push_back(JGenNodeProvider::getCodeNode(*I));
+        }
+    }
+    if(node.isMember("body")) {
+        body = JGenNodeProvider::getCodeNode(node["body"]);
+    }
+}
+
+JGenTypeNode *JGenMethodDefNode::getType() {
+    FmtAssert(node.isMember("type"), ("node don't have key : type."));
+    mINT32 jIndex = node["type"].asInt();
+    JGenTypeNode *type = JGenNodeProvider::getTypeNode(jsonIR.get_type(jIndex));
+    FmtAssert(type->getKind() == JGEN_TYPE_METHOD, ("method's type is not METHOD, type : %d.", type->getKind()));
+    return type;
+}
+
+JGenSymbolNode *JGenMethodDefNode::getSymbol() {
+    FmtAssert(node.isMember("sym"), ("node don't have key : sym."));
+    mINT32 jIndex = node["sym"].asInt();
+    JGenSymbolNode *symbol = JGenNodeProvider::getSymbolNode(jsonIR.get_symbol(jIndex));
+    FmtAssert(symbol->getKind() == JGEN_SYMBOL_MTH, ("method's symbol is not METHOD, symbol : %d.", symbol->getKind()));
+    return symbol;  
 }

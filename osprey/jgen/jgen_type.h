@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "jgen_include.h"
 #include "symtab_idx.h"
@@ -13,94 +14,95 @@ namespace JGEN {
 enum TypeTag {
     /** The tag of the basic type `byte'.
      */
-    jBYTE = 0,
+    JGEN_TYPE_BYTE = 0,
 
     /** The tag of the basic type `char'.
      */
-    jCHAR,
+    JGEN_TYPE_CHAR,
 
     /** The tag of the basic type `short'.
      */
-    jSHORT,
+    JGEN_TYPE_SHORT,
 
     /** The tag of the basic type `long'.
      */
-    jLONG,
+    JGEN_TYPE_LONG,
 
     /** The tag of the basic type `float'.
      */
-    jFLOAT,
+    JGEN_TYPE_FLOAT,
     /** The tag of the basic type `int'.
      */
-    jINT,
+    JGEN_TYPE_INT,
     /** The tag of the basic type `double'.
      */
-    jDOUBLE,
+    JGEN_TYPE_DOUBLE,
     /** The tag of the basic type `boolean'.
      */
-    jBOOLEAN,
+    JGEN_TYPE_BOOLEAN,
 
     /** The tag of the type `void'.
      */
-    jVOID,
+    JGEN_TYPE_VOID,
 
     /** The tag of all class and interface types.
      */
-    jCLASS,
+    JGEN_TYPE_CLASS,
 
     /** The tag of all array types.
      */
-    jARRAY,
+    JGEN_TYPE_ARRAY,
 
     /** The tag of all (monomorphic) method types.
      */
-    jMETHOD,
+    JGEN_TYPE_METHOD,
 
     /** The tag of all package "types".
      */
-    jPACKAGE,
+    JGEN_TYPE_PACKAGE,
 
     /** The tag of all (source-level) type variables.
      */
-    jTYPEVAR,
+    JGEN_TYPE_TYPEVAR,
 
     /** The tag of all type arguments.
      */
-    jWILDCARD,
+    JGEN_TYPE_WILDCARD,
 
     /** The tag of all polymorphic (method-) types.
      */
-    jFORALL,
+    JGEN_TYPE_FORALL,
 
     /** The tag of deferred expression types in method context
      */
-    jDEFERRED,
+    JGEN_TYPE_DEFERRED,
 
     /** The tag of the bottom type {@code <null>}.
      */
-    jBOT,
+    JGEN_TYPE_BOT,
 
     /** The tag of a missing type.
      */
-    jNONE,
+    JGEN_TYPE_NONE,
 
     /** The tag of the error type.
      */
-    jERROR,
+    JGEN_TYPE_ERROR,
 
     /** The tag of an unknown type
      */
-    jUNKNOWN,
+    JGEN_TYPE_UNKNOWN,
 
     /** The tag of all instantiatable type variables.
      */
-    jUNDETVAR,
+    JGEN_TYPE_UNDETVAR,
 
     /** Pseudo-types, these are special tags
      */
-    jUNINITIALIZED_THIS,
+    JGEN_TYPE_UNINITIALIZED_THIS,
 
-    jUNINITIALIZED_OBJECT
+    JGEN_TYPE_UNINITIALIZED_OBJECT
+
 };
 
 class JGenTypeNode: public JGenNode {
@@ -113,9 +115,9 @@ class JGenTypeNode: public JGenNode {
         return node["name"].asCString();
     }
 
-    mUINT32 getKind() {
+    mINT32 getKind() {
         FmtAssert(node.isMember("kind"), ("node don't have key: kind."));
-        return node["kind"].asUInt();
+        return node["kind"].asInt();
     }
 
     std::string getKindName() {
@@ -124,19 +126,22 @@ class JGenTypeNode: public JGenNode {
     }
 
     bool isPrimitive() {
-        return getKind() <= jVOID;
+        return getKind() <= JGEN_TYPE_VOID;
     }
 
-    virtual mUINT32 getAlign() = 0;
+    virtual mINT32 getAlign() = 0;
     
 };
+
+typedef std::vector<JGenTypeNode *> TypeVector;
+typedef std::vector<JGenTypeNode *>::iterator TypeVectorIter;
 
 class JGenPrimitiveTypeNode : public JGenTypeNode {
     public:
     explicit JGenPrimitiveTypeNode(Json_IR &_jsonIR, Json::Value &node): JGenTypeNode(_jsonIR, node) {
     }
 
-    mUINT32 getAlign() {
+    mINT32 getAlign() {
         return 0;
     }
     
@@ -151,9 +156,30 @@ class JGenClassTypeNode : public JGenTypeNode {
         return false;
     }
 
-    mUINT32 getAlign() {
+    mINT32 getAlign() {
         return 4;
     }
+};
+
+class JGenMethodTypeNode: public JGenTypeNode {
+    public:
+    explicit JGenMethodTypeNode(Json_IR &_jsonIR, Json::Value &node);
+
+    JGenTypeNode *getReturnType() {
+        return resType;
+    }
+
+    TypeVector *getParameterTypeVector() {
+        return parameter_type_vector;
+    }
+
+    mINT32 getAlign() {
+        return 1;
+    }
+
+    private:
+    TypeVector *parameter_type_vector;
+    JGenTypeNode *resType;
 };
 
 class TypeHandler {
@@ -163,9 +189,10 @@ class TypeHandler {
     
     private:
     static TY_IDX addClassType(JGenClassTypeNode *type, TY_IDX idx);
+    static TY_IDX addMethodType(JGenMethodTypeNode *type, TY_IDX idx);
 
     private:
-    static std::map<JGenTypeNode *, TY_IDX> *typeCache;
+    static std::map<JGenTypeNode *, TY_IDX> *cache;
 };
 }
 

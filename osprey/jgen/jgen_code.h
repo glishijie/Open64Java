@@ -281,7 +281,7 @@ class JGenCodeNode: public JGenNode {
 
     JGenCodeTag getTag() {
         FmtAssert(node.isMember("tag"), ("node don't have key: tag."));
-        return (JGenCodeTag) node["tag"].asUInt();
+        return (JGenCodeTag) node["tag"].asInt();
     }
 };
 

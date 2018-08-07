@@ -3,40 +3,40 @@
 
 #include "jgen_include.h"
 #include "jgen_node.h"
-#include "jgen_decl.h"
 #include "jgen_type.h"
+#include <map>
 
 namespace JGEN {
 
-static int NIL = 0;
+static const mINT32 JGEN_SYMBOL_NIL = 0;
 
 /** The kind of package symbols.
  */
-static int PCK = 1 << 0;
+static const mINT32 JGEN_SYMBOL_PCK = 1 << 0;
 
 /** The kind of type symbols (classes, interfaces and type variables).
  */
-static int TYP = 1 << 1;
+static const mINT32 JGEN_SYMBOL_TYP = 1 << 1;
 
 /** The kind of variable symbols.
  */
-static int VAR = 1 << 2;
+static const mINT32 JGEN_SYMBOL_VAR = 1 << 2;
 
 /** The kind of values (variables or non-variable expressions), includes VAR.
  */
-static int VAL = (1 << 3) | VAR;
+static const mINT32 JGEN_SYMBOL_VAL = (1 << 3) | JGEN_SYMBOL_VAR;
 
 /** The kind of methods.
  */
-static int MTH = 1 << 4;
+static const mINT32 JGEN_SYMBOL_MTH = 1 << 4;
 
 /** Poly kind, for deferred types.
  */
-static int POLY = 1 << 5;
+static const mINT32 JGEN_SYMBOL_POLY = 1 << 5;
 
 /** The error kind, which includes all other kinds.
  */
-static int ERR = (1 << 6) - 1;
+static const mINT32 JGEN_SYMBOL_ERR = (1 << 6) - 1;
 
 class JGenSymbolNode: public JGenNode {
     public:
@@ -48,9 +48,9 @@ class JGenSymbolNode: public JGenNode {
         return node["name"].asCString();
     }
 
-    mUINT32 getKind() {
+    mINT32 getKind() {
         FmtAssert(node.isMember("kind"), ("node don't have key: kind."));
-        return node["kind"].asUInt();
+        return node["kind"].asInt();
     }
 
     std::string getKindName() {
@@ -72,13 +72,24 @@ class JGenVarSymbolNode: public JGenSymbolNode {
     }
 };
 
+class JGenMethodSymbolNode: public JGenSymbolNode {
+    public:
+    explicit JGenMethodSymbolNode(Json_IR &_jsonIR, Json::Value &_node): JGenSymbolNode(_jsonIR, _node) {
+        
+    }
+};
+
 class SymbolHandler {
     public:
     static void init();
-    static ST *getSymbol(JGenDeclNode *decl);
+    static ST *getSymbol(JGenSymbolNode *symbol);
     
     private:
-    static ST *addVarSymbol(JGenVarDeclNode *decl);
+    static ST *addVarSymbol(JGenVarSymbolNode *symbol);
+    static ST *addMethodSymbol(JGenMethodSymbolNode *symbol);
+
+    private:
+    static std::map<JGenSymbolNode *, ST *> *cache;
 };
 
 };

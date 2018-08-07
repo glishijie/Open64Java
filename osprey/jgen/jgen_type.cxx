@@ -5,10 +5,10 @@ using namespace JGEN;
 using namespace Json;
 using namespace std;
 
-map<JGenTypeNode *, TY_IDX> *TypeHandler::typeCache;
+map<JGenTypeNode *, TY_IDX> *TypeHandler::cache;
 
 void TypeHandler::init() {
-    typeCache = new map<JGenTypeNode *, TY_IDX>();
+    cache = new map<JGenTypeNode *, TY_IDX>();
 }
 
 TY_IDX TypeHandler::addClassType(JGenClassTypeNode *type, TY_IDX idx) {
@@ -27,8 +27,8 @@ TY_IDX TypeHandler::addClassType(JGenClassTypeNode *type, TY_IDX idx) {
       align = 1; // in case incomplete type
     Set_TY_align(idx, align);
     // set idx now in case recurse thru fields
-    // typeCache[&type] = idx;
-    typeCache->insert(std::make_pair<JGenTypeNode *, TY_IDX>(type, idx));
+    // cache[&type] = idx;
+    cache->insert(std::make_pair<JGenTypeNode *, TY_IDX>(type, idx));
 
     // TODO: visit extends class
     // Do_Base_Types(type_tree);
@@ -349,34 +349,90 @@ TY_IDX TypeHandler::addClassType(JGenClassTypeNode *type, TY_IDX idx) {
   return idx;
 }
 
+JGenMethodTypeNode::JGenMethodTypeNode(Json_IR &_jsonIR, Json::Value &node): JGenTypeNode(_jsonIR, node) {
+    FmtAssert(node.isMember("argtypes"), ("node don't have key : argtypes."));
+    FmtAssert(node.isMember("restype"), ("node don't have key : restype."));
+    parameter_type_vector = new TypeVector();
+    Value &argtypes = node["argtypes"];
+    for(Value::iterator I = argtypes.begin(); I != argtypes.end(); ++I) {
+        parameter_type_vector->push_back(JGenNodeProvider::getTypeNode(jsonIR.get_type((*I).asInt())));
+    }
+    resType = JGenNodeProvider::getTypeNode(jsonIR.get_type(node["restype"].asInt()));
+}
+
+TY_IDX TypeHandler::addMethodType(JGenMethodTypeNode *type, TY_IDX idx) {
+    TY &ty = (idx == TY_IDX_ZERO) ? New_TY(idx) : Ty_Table[idx];
+    Clear_TY_is_incomplete(idx);
+
+    TY_Init(ty, 0, KIND_FUNCTION, MTYPE_UNKNOWN, 0);
+    Set_TY_align(idx, 1);
+    TY_IDX ret_ty_idx;
+    TY_IDX arg_ty_idx;
+    TYLIST tylist_idx;
+
+    // allocate TYs for return as well as parameters
+    // this is needed to avoid mixing TYLISTs if one
+    // of the parameters is a pointer to a function
+
+    ret_ty_idx = getType(type->getReturnType());
+    TypeVector *parameterTypeVector = type->getParameterTypeVector();
+    for(TypeVectorIter I = parameterTypeVector->begin(); I != parameterTypeVector->end(); ++I) {
+        arg_ty_idx = getType(*I);
+        if (TY_is_incomplete(arg_ty_idx) ||
+          (TY_kind(arg_ty_idx) == KIND_POINTER &&
+           TY_is_incomplete(TY_pointed(arg_ty_idx)))) {
+               Set_TY_is_incomplete(idx);
+        }   
+    }
+    Set_TYLIST_type(New_TYLIST(tylist_idx), ret_ty_idx);
+    Set_TY_tylist(ty, tylist_idx);
+
+    for (TypeVectorIter I = parameterTypeVector->begin(); I != parameterTypeVector->end(); ++I) {
+        arg_ty_idx = getType(*I);
+        Set_TYLIST_type(New_TYLIST(tylist_idx), arg_ty_idx);
+    }
+    if (parameterTypeVector->size() != 0) {
+      Set_TY_has_prototype(idx);
+      if (arg_ty_idx != Be_Type_Tbl(MTYPE_V)) {
+        Set_TYLIST_type(New_TYLIST(tylist_idx), 0);
+        Set_TY_is_varargs(idx);
+      } else
+        Set_TYLIST_type(Tylist_Table[tylist_idx], 0);
+    } else
+    Set_TYLIST_type(New_TYLIST(tylist_idx), 0);
+}
+
 TY_IDX TypeHandler::getType(JGenTypeNode *type) {
 
-    if(typeCache->find(type) != typeCache->end()) {
-      return typeCache->find(type)->second;
+    if(cache->find(type) != cache->end()) {
+      return cache->find(type)->second;
     }
     switch(type->getKind()) {
-        case jBYTE:
+        case JGEN_TYPE_BYTE:
             return MTYPE_To_TY(MTYPE_I1);
-        case jCHAR:
+        case JGEN_TYPE_CHAR:
             return MTYPE_To_TY(MTYPE_U2);
-        case jSHORT:
+        case JGEN_TYPE_SHORT:
             return MTYPE_To_TY(MTYPE_I2);
-        case jLONG:
+        case JGEN_TYPE_LONG:
             return MTYPE_To_TY(MTYPE_I8);
-        case jFLOAT:
+        case JGEN_TYPE_FLOAT:
             return MTYPE_To_TY(MTYPE_F4);
-        case jINT:
+        case JGEN_TYPE_INT:
             return MTYPE_To_TY(MTYPE_I4);
-        case jDOUBLE:
+        case JGEN_TYPE_DOUBLE:
             return MTYPE_To_TY(MTYPE_F8);
-        case jBOOLEAN:
+        case JGEN_TYPE_BOOLEAN:
             FmtAssert(0, ("deal with this type later."));
             return 0;
-        case jVOID:
+        case JGEN_TYPE_VOID:
             return MTYPE_To_TY(MTYPE_V);
-        case jCLASS:
+        case JGEN_TYPE_CLASS:
             return addClassType(static_cast<JGenClassTypeNode *>(type), TY_IDX_ZERO);
-        case jPACKAGE:
+        case JGEN_TYPE_METHOD:
+            return addMethodType(static_cast<JGenMethodTypeNode *>(type), TY_IDX_ZERO);
+        case JGEN_TYPE_PACKAGE:
+            FmtAssert(0, ("handle package type later."));
             return TY_IDX_ZERO;
         default:
             FmtAssert(0, ("Handle type later."));
